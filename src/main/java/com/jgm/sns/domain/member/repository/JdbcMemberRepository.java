@@ -54,6 +54,10 @@ public class JdbcMemberRepository implements MemberRepository {
 
     @Override
     public Member update(Member member) {
+        String sql = String.format("update %s set email = :email, nickname = :nickname, " +
+                "birthday = :birthday where id = :id", TABLE);
+        SqlParameterSource params = new BeanPropertySqlParameterSource(member);
+        jdbc.update(sql, params);
         return member;
     }
 
