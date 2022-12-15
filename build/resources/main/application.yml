@@ -1,0 +1,9 @@
+logging:
+  level:
+    org.springframework.jdbc.core: TRACE
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/sns
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: jgm
+    password: jgm1234
