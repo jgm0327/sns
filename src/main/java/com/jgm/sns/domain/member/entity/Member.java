@@ -30,8 +30,13 @@ public class Member {
         this.birthday = birthday;
         this.createdAt = createdAt == null ? LocalDateTime.now() : createdAt;
     }
-
-    void validateNickname(String nickname){
+    private void validateNickname(String nickname){
         Assert.isTrue(nickname.length() <= NAME_MAX_LENGTH, "최대 길이를 초과하였습니다.");
+    }
+
+    public void changeNickname(String nickname){
+        Objects.requireNonNull(nickname);
+        validateNickname(nickname);
+        this.nickname = nickname;
     }
 }
