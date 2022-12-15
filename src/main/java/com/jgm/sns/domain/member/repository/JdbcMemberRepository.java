@@ -19,11 +19,11 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class JdbcMemberRepository implements MemberRepository {
+public class JdbcMemberRepository{
     final private NamedParameterJdbcTemplate jdbc;
     final static private String TABLE = "member";
 
-    @Override
+
     public Member save(Member member) {
         if (member.getId() == null) {
             return insert(member);
@@ -31,7 +31,7 @@ public class JdbcMemberRepository implements MemberRepository {
         return update(member);
     }
 
-    @Override
+
     public Member insert(Member member) {
         /**
          * SimpleJdbcInsert가 마음대로 쿼리문을 만들면 setColumnNames로 Column 이름을 지정하자.
@@ -52,7 +52,7 @@ public class JdbcMemberRepository implements MemberRepository {
                 .build();
     }
 
-    @Override
+
     public Member update(Member member) {
         String sql = String.format("update %s set email = :email, nickname = :nickname, " +
                 "birthday = :birthday where id = :id", TABLE);
@@ -61,7 +61,7 @@ public class JdbcMemberRepository implements MemberRepository {
         return member;
     }
 
-    @Override
+
     public Optional<Member> findById(Long id) {
         /**
          * select * from member where id = id;
