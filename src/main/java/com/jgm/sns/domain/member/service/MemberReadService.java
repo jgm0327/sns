@@ -22,6 +22,11 @@ public class MemberReadService {
         return toDto(member);
     }
 
+    public List<MemberDto> getMembers(List<Long> ids){
+        List<Member> members = memberRepository.findAllByIdIn(ids);
+        return members.stream().map(this::toDto).toList();
+    }
+
     public MemberDto toDto(Member member){
         return new MemberDto(member.getId(), member.getEmail(), member.getNickname(), member.getBirthday());
     }

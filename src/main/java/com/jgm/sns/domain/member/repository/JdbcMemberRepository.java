@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,6 +23,15 @@ import java.util.Optional;
 public class JdbcMemberRepository{
     final private NamedParameterJdbcTemplate jdbc;
     final static private String TABLE = "member";
+
+    final static private RowMapper<Member> rowMapper = (rs, rn) ->
+            Member.builder()
+                    .id(rs.getLong("id"))
+                    .email(rs.getString("email"))
+                    .nickname(rs.getString("nickname"))
+                    .birthday(rs.getObject("birthday", LocalDate.class))
+                    .createdAt(rs.getObject("createdAt", LocalDateTime.class))
+                    .build();
 
 
     public Member save(Member member) {
@@ -69,15 +79,17 @@ public class JdbcMemberRepository{
         String sql = String.format("SELECT * FROM %s WHERE id = :id", TABLE);
         SqlParameterSource param = new MapSqlParameterSource()
                 .addValue("id", id);
-        RowMapper<Member> rowMapper = (rs, rn) ->
-                Member.builder()
-                        .id(rs.getLong("id"))
-                        .email(rs.getString("email"))
-                        .nickname(rs.getString("nickname"))
-                        .birthday(rs.getObject("birthday", LocalDate.class))
-                        .createdAt(rs.getObject("createdAt", LocalDateTime.class))
-                        .build();
+
         Member member = jdbc.queryForObject(sql, param, rowMapper);
         return Optional.ofNullable(member);
     }
+
+    public List<Member> findAllByIdIn(List<Long> ids){
+        if(ids.isEmpty())
+            return List.of();
+        String sql = String.format("select * from %s where id in (:ids)", TABLE);
+        SqlParameterSource params = new MapSqlParameterSource().addValue("ids", ids);
+        return jdbc.query(sql, params, rowMapper);
+    }
+
 }
