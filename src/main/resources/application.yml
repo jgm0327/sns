@@ -1,6 +1,3 @@
-logging:
-  level:
-    org.springframework.jdbc.core: TRACE
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/sns
