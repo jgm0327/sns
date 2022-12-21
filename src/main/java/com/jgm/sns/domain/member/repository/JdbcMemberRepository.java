@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.Assert;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +19,7 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class JdbcMemberRepository{
+public class JdbcMemberRepository {
     final private NamedParameterJdbcTemplate jdbc;
     final static private String TABLE = "member";
 
@@ -84,8 +83,8 @@ public class JdbcMemberRepository{
         return Optional.ofNullable(member);
     }
 
-    public List<Member> findAllByIdIn(List<Long> ids){
-        if(ids.isEmpty())
+    public List<Member> findAllByIdIn(List<Long> ids) {
+        if (ids.isEmpty())
             return List.of();
         String sql = String.format("select * from %s where id in (:ids)", TABLE);
         SqlParameterSource params = new MapSqlParameterSource().addValue("ids", ids);

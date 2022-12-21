@@ -1,4 +1,4 @@
-package com.jgm.sns.domain.post;
+package com.jgm.sns.util;
 
 import org.springframework.data.domain.Sort;
 
