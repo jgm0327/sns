@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
@@ -30,6 +31,8 @@ public class PostRepository {
 
     private static final RowMapper<Post> ROW_MAPPER = (rs, rn) -> Post.builder()
             .id(rs.getLong("id"))
+            .version(rs.getLong("version"))
+            .likeCount(rs.getLong("likeCount"))
             .memberId(rs.getLong("memberId"))
             .contents(rs.getString("contents"))
             .createdAt(rs.getObject("createdAt", LocalDateTime.class))
@@ -46,7 +49,7 @@ public class PostRepository {
         if (post.getId() == null) {
             return insert(post);
         }
-        throw new UnsupportedOperationException("post는 갱신을 하지 않습니다.");
+        return update(post);
     }
 
     private Post insert(Post post) {
@@ -58,11 +61,47 @@ public class PostRepository {
 
         return Post.builder()
                 .id(id)
+                .version(post.getVersion())
+                .likeCount(post.getLikeCount())
                 .memberId(post.getMemberId())
                 .contents(post.getContents())
                 .createdAt(post.getCreatedAt())
                 .createdDate(post.getCreatedDate())
                 .build();
+    }
+
+    private Post update(Post post){
+        String sql = String.format("""
+                update %s
+                set memberId = :memberId,
+                contents = :contents,
+                createdDate = :createdDate,
+                createdAt = :createdAt,
+                likeCount = :likeCount,
+                version = :version + 1
+                where id = :id and version = :version
+                """, TABLE);
+        SqlParameterSource params = new BeanPropertySqlParameterSource(post);
+        int updatedCount = namedParameterJdbcTemplate.update(sql, params);
+        if(updatedCount == 0){
+            throw new RuntimeException("갱신실패");
+        }
+        return post;
+    }
+
+    public Optional<Post> findById(Long postId, Boolean requiredBlock){
+        String sql = String.format("""
+                SELECT *
+                from %s
+                where id = :postId
+                """, TABLE);
+        if(requiredBlock){
+            sql += "FOR UPDATE";
+        }
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("postId",postId);
+        Post optionalPost = namedParameterJdbcTemplate.queryForObject(sql, params, ROW_MAPPER);
+        return Optional.ofNullable(optionalPost);
     }
 
     private Long getCount(Long memberId){

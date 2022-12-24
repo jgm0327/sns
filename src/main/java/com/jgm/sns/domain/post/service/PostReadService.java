@@ -2,7 +2,9 @@ package com.jgm.sns.domain.post.service;
 
 import com.jgm.sns.domain.post.dto.DailyPostCount;
 import com.jgm.sns.domain.post.dto.DailyPostCountRequest;
+import com.jgm.sns.domain.post.dto.PostDto;
 import com.jgm.sns.domain.post.entity.Post;
+import com.jgm.sns.domain.post.repository.PostLikeRepository;
 import com.jgm.sns.domain.post.repository.PostRepository;
 import com.jgm.sns.util.CursorRequest;
 import com.jgm.sns.util.PageCursor;
@@ -17,13 +19,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostReadService {
     final private PostRepository postRepository;
+    final private PostLikeRepository postLikeRepository;
 
     public List<DailyPostCount> getDailyPostCount(DailyPostCountRequest request) {
         return postRepository.groupByCreatedDate(request);
     }
 
-    public Page<Post> getPosts(Long memberId, Pageable pageRequest) {
-        return postRepository.findAllByMemberId(memberId, pageRequest);
+    public Page<PostDto> getPosts(Long memberId, Pageable pageRequest) {
+        return postRepository.findAllByMemberId(memberId, pageRequest).map(this::toDto);
+
+    }
+
+    private PostDto toDto(Post post){
+        return new PostDto(
+                post.getId(),
+                post.getContents(),
+                post.getCreatedAt(),
+                postLikeRepository.getCount(post.getId()));
+    }
+
+    public Post getPost(Long postId){
+        return postRepository.findById(postId, false).orElseThrow();
     }
 
     public PageCursor<Post> getPosts(Long memberId, CursorRequest cursorRequest) {

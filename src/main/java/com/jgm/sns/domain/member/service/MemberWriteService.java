@@ -8,6 +8,7 @@ import com.jgm.sns.domain.member.repository.MemberNicknameHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +19,7 @@ public class MemberWriteService {
     final JdbcMemberRepository memberRepository;
     final MemberNicknameHistoryRepository memberNicknameHistoryRepository;
 
+    @Transactional
     public Member create(RegisterMemberCommand command) {
         /*
             TODO: 회원정보(이메일, 닉네임, 생년월일)를 등록한다. - 닉네임은 10자를 넘을 수 없다.

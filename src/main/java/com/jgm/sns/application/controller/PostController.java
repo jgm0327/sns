@@ -1,10 +1,12 @@
 package com.jgm.sns.application.controller;
 
+import com.jgm.sns.application.usecase.CreatePostLikeUsecase;
 import com.jgm.sns.application.usecase.CreatePostUsecase;
 import com.jgm.sns.application.usecase.GetTimeLinePostUsecase;
 import com.jgm.sns.domain.post.dto.DailyPostCount;
 import com.jgm.sns.domain.post.dto.DailyPostCountRequest;
 import com.jgm.sns.domain.post.dto.PostCommand;
+import com.jgm.sns.domain.post.dto.PostDto;
 import com.jgm.sns.domain.post.entity.Post;
 import com.jgm.sns.domain.post.service.PostReadService;
 import com.jgm.sns.domain.post.service.PostWriteService;
@@ -30,6 +32,7 @@ public class PostController {
     final private GetTimeLinePostUsecase getTimeLinePostUsecase;
 
     final private CreatePostUsecase createPostUsecase;
+    final private CreatePostLikeUsecase createPostLikeUsecase;
 
     @PostMapping
     public Long create(PostCommand command){
@@ -43,7 +46,7 @@ public class PostController {
     }
 
     @GetMapping("/members/{memberId}")
-    public Page<Post> getPosts(
+    public Page<PostDto> getPosts(
             @PathVariable Long memberId,
             Pageable pageRequest
             ){
@@ -65,4 +68,16 @@ public class PostController {
     ){
         return getTimeLinePostUsecase.execute(memberId, cursorRequest);
     }
+
+    @PostMapping("/{postId}/like/v1")
+    public void likePost(@PathVariable Long postId){
+        //postWriteService.likePost(postId);
+        postWriteService.likePostByOptimisticLock(postId);
+    }
+
+    @PostMapping("/{postId}/like/v2")
+    public void likePostV2(@PathVariable Long postId, @RequestParam Long memberId){
+        createPostLikeUsecase.execute(postId, memberId);
+    }
+
 }
